@@ -1,0 +1,520 @@
+<title>NodIA · Pitch de Ronda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== Mundo visual: el chat de WhatsApp convertido en sistema. Dark proyectable. ===== */
+:root {
+  color-scheme: dark;
+  --bg:#0B100E; --surface:#121A16; --surface2:#1A2520; --line:#26332C;
+  --ink:#ECF4EE; --ink2:#A3B8AA; --mut:#6E8578;
+  --green:#2FD57A; --green-ink:#0B100E; --green-dim:#14352A; --green-line:#1E5A3C;
+  --amber:#F2B84B; --red:#E76F5A;
+  --disp:"Bricolage Grotesque","Avenir Next",sans-serif;
+  --body:"Instrument Sans","Helvetica Neue",sans-serif;
+  --mono:"Spline Sans Mono","SF Mono",monospace;
+}
+* { box-sizing:border-box; }
+html,body { height:100%; }
+body {
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--body); font-size:16px; line-height:1.5;
+  overflow:hidden;
+  background-image:radial-gradient(900px 500px at 85% -10%, rgba(47,213,122,.07), transparent 60%),
+                   radial-gradient(700px 420px at -10% 110%, rgba(47,213,122,.05), transparent 60%);
+}
+.deck { position:relative; height:100%; width:100%; }
+.slide {
+  position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+  padding:56px clamp(20px,5vw,72px) 84px;
+  max-width:1180px; margin:0 auto; left:0; right:0;
+  opacity:0; visibility:hidden; transform:translateX(36px);
+  transition:opacity .38s ease, transform .38s ease, visibility 0s linear .38s;
+  overflow-y:auto; scrollbar-width:none;
+}
+.slide::-webkit-scrollbar { display:none; }
+.slide.active { opacity:1; visibility:visible; transform:none; transition:opacity .38s ease, transform .38s ease; }
+.slide.prev { transform:translateX(-36px); }
+
+h1,h2,h3 { font-family:var(--disp); line-height:1.06; text-wrap:balance; margin:0; }
+h1 { font-size:clamp(46px,9vw,96px); font-weight:800; letter-spacing:-.02em; }
+h2 { font-size:clamp(24px,4vw,42px); font-weight:700; letter-spacing:-.015em; }
+h3 { font-size:clamp(15px,1.6vw,18px); font-weight:600; }
+p { margin:0; }
+.eyebrow { font-family:var(--mono); font-size:clamp(11px,1.25vw,13px); letter-spacing:.16em; text-transform:uppercase; color:var(--green); margin-bottom:14px; }
+.eyebrow b { color:var(--mut); font-weight:400; }
+.lead { font-size:clamp(16px,2vw,20px); color:var(--ink2); max-width:64ch; }
+.muted { color:var(--mut); font-size:clamp(12px,1.35vw,14px); }
+.accent { color:var(--green); } .amber { color:var(--amber); }
+.stack { display:flex; flex-direction:column; gap:clamp(14px,2.4vh,26px); }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:clamp(12px,2vw,22px); align-items:center; }
+@media (max-width:760px){ .cols { grid-template-columns:1fr; } }
+
+/* tiles y cards */
+.tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:clamp(8px,1.4vw,14px); }
+.tile { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:clamp(10px,1.6vw,18px) clamp(12px,1.6vw,18px); }
+.tile .num { font-family:var(--disp); font-size:clamp(22px,3.4vw,38px); font-weight:700; font-variant-numeric:tabular-nums; }
+.tile .lbl { color:var(--ink2); font-size:clamp(12.5px,1.4vw,14.5px); margin-top:3px; }
+.tile .src { color:var(--mut); font-size:clamp(10.5px,1.1vw,12px); margin-top:7px; font-family:var(--mono); }
+.tile.hot { border-color:var(--green-line); background:var(--green-dim); }
+.tile.hot .num { color:var(--green); }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:clamp(8px,1.4vw,14px); }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:clamp(10px,1.6vw,16px) clamp(12px,1.6vw,18px); }
+.card h3 { margin-bottom:4px; }
+.card p { color:var(--ink2); font-size:clamp(12.5px,1.45vw,15px); }
+.card .tag { font-family:var(--mono); font-size:clamp(10px,1.05vw,11.5px); letter-spacing:.1em; text-transform:uppercase; color:var(--mut); display:block; margin-bottom:6px; }
+.card.win { border-color:var(--green-line); background:var(--green-dim); }
+.card.win .tag { color:var(--green); }
+
+/* chat */
+.chat { display:flex; flex-direction:column; gap:10px; max-width:560px; }
+.bubble { background:var(--surface2); border:1px solid var(--line); border-radius:16px 16px 16px 4px; padding:12px 16px; font-size:clamp(13px,1.5vw,15.5px); }
+.bubble.out { align-self:flex-end; background:var(--green-dim); border-color:var(--green-line); border-radius:16px 16px 4px 16px; }
+.vnote { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; color:var(--ink2); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px 10px; margin-bottom:6px; }
+.vnote .wave { color:var(--green); letter-spacing:2px; }
+
+/* order card */
+.order { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 18px; }
+.order .otop { display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--mut); border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:8px; }
+.order table { width:100%; border-collapse:collapse; font-size:clamp(12.5px,1.4vw,15px); }
+.order td { padding:4px 0; }
+.order td:last-child { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; }
+.order .warn { color:var(--amber); font-size:clamp(11px,1.2vw,13px); margin-top:6px; }
+.order .ofoot { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); margin-top:8px; padding-top:10px; }
+.btn { background:var(--green); color:var(--green-ink); font-weight:600; border-radius:999px; padding:6px 16px; font-size:13px; }
+
+/* equipo */
+.team { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(8px,1.2vw,12px); }
+@media (max-width:860px){ .team { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:560px){ .team { grid-template-columns:1fr; } }
+.member { display:flex; gap:12px; align-items:flex-start; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+.avatar { width:40px; height:40px; border-radius:50%; flex:none; background:var(--green-dim); color:var(--green); display:flex; align-items:center; justify-content:center; font-family:var(--disp); font-weight:700; font-size:15px; border:1px solid var(--green-line); }
+.member .role { font-family:var(--mono); font-size:clamp(9.5px,1.05vw,11px); color:var(--green); letter-spacing:.05em; text-transform:uppercase; }
+.member .resp { color:var(--ink2); font-size:clamp(10.5px,1.2vw,12.5px); margin-top:2px; }
+
+/* barras */
+.bars { display:flex; flex-direction:column; gap:10px; }
+.brow { display:grid; grid-template-columns:150px 1fr; gap:10px; align-items:center; }
+@media (max-width:560px){ .brow { grid-template-columns:110px 1fr; } }
+.blbl { font-size:clamp(12px,1.3vw,14px); color:var(--ink2); }
+.btrack { position:relative; height:clamp(18px,2.6vh,24px); margin-right:118px; }
+.bfill { height:100%; border-radius:0 4px 4px 0; position:relative; }
+.bval { position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%); font-family:var(--mono); font-size:clamp(12px,1.25vw,13.5px); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.threshold { position:absolute; top:-7px; bottom:-7px; border-left:2px dashed var(--amber); }
+.thr-lbl { position:absolute; top:calc(100% + 6px); transform:translateX(-50%); font-family:var(--mono); font-size:11px; color:var(--amber); white-space:nowrap; }
+
+/* quadrant 2x2 */
+.quad { display:grid; grid-template-columns:1fr 1fr; gap:8px; max-width:640px; }
+.quad .axis-x { grid-column:1/3; text-align:center; }
+.quad .axis-y { writing-mode:vertical-rl; transform:rotate(180deg); text-align:center; font-family:var(--mono); font-size:10px; color:var(--mut); padding:4px 0; }
+
+/* riesgos */
+.risks { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(6px,1vw,10px); }
+@media (max-width:900px){ .risks { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:560px){ .risks { grid-template-columns:1fr; } }
+.risk { border-left:3px solid var(--green); padding:8px 12px; }
+.risk .q { font-family:var(--mono); font-size:clamp(9.5px,1.05vw,11px); color:var(--mut); text-transform:uppercase; letter-spacing:.08em; }
+.risk p { color:var(--ink2); font-size:clamp(11.5px,1.25vw,13px); margin-top:3px; }
+
+/* charts */
+.chart-wrap { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:clamp(10px,1.6vw,18px); }
+.chart-wrap svg { width:100%; height:auto; display:block; }
+svg text { font-family:var(--mono); }
+.bar { fill:var(--green); }
+
+/* badge */
+.badge { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:clamp(11px,1.3vw,13px); color:var(--green); border:1px solid var(--green-line); background:var(--green-dim); border-radius:999px; padding:7px 16px; }
+a { color:var(--green); }
+
+/* ===== navegación ===== */
+#bar { position:fixed; top:0; left:0; height:3px; background:var(--green); z-index:20; transition:width .3s ease; }
+#counter { position:fixed; top:14px; right:18px; font-family:var(--mono); font-size:12px; color:var(--mut); z-index:20; font-variant-numeric:tabular-nums; }
+#brand { position:fixed; top:14px; left:18px; font-family:var(--disp); font-weight:700; font-size:14px; color:var(--mut); z-index:20; letter-spacing:.02em; }
+#brand span { color:var(--green); }
+#dots { position:fixed; bottom:22px; left:50%; transform:translateX(-50%); display:flex; gap:7px; z-index:20; }
+#dots button { width:8px; height:8px; border-radius:50%; border:none; padding:0; background:var(--line); cursor:pointer; transition:background .2s, transform .2s; }
+#dots button.on { background:var(--green); transform:scale(1.25); }
+#navbtns { position:fixed; bottom:14px; right:16px; display:flex; gap:8px; z-index:20; }
+#navbtns button {
+  width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:border-color .2s, background .2s;
+}
+#navbtns button:hover { border-color:var(--green-line); background:var(--green-dim); }
+#navbtns svg { width:18px; height:18px; }
+#hint { position:fixed; bottom:22px; left:22px; font-family:var(--mono); font-size:11px; color:var(--mut); z-index:20; }
+@media (max-width:760px){ #dots { display:none; } #hint { display:none; } }
+@media (prefers-reduced-motion: reduce){
+  .slide, .slide.active, #bar, #dots button { transition:none; }
+}
+</style>
+<div id="bar"></div>
+<div id="brand">nod<span>IA</span></div>
+<div id="counter">01 / 13</div>
+<div id="hint">← → para navegar</div>
+<nav id="dots" aria-label="Slides"></nav>
+<div id="navbtns">
+  <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+</div>
+
+<main class="deck">
+
+<!-- 01 COVER -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">Taller de Emprendedurismo en Innovación Digital · Equipo 20</p>
+    <div style="display:flex; align-items:center; gap:clamp(16px,4vw,48px); flex-wrap:wrap;">
+      <div>
+        <h1>nod<span class="accent">IA</span></h1>
+        <p class="lead" style="margin-top:10px;">Tus clientes siguen pidiendo por WhatsApp, como siempre.<br>Vos dejás de cargar cada pedido a mano.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;">
+          <span class="badge">Ronda semilla · USD 60.000</span>
+          <span class="badge">VAN @30% · USD 645 mil</span>
+        </div>
+      </div>
+      <svg viewBox="0 0 200 200" style="width:clamp(120px,22vw,220px); flex:none;" aria-hidden="true">
+        <rect x="30" y="20" width="140" height="120" rx="26" fill="var(--green-dim)" stroke="var(--green-line)"/>
+        <path d="M70 140 L70 162 L96 140 Z" fill="var(--green-dim)" stroke="var(--green-line)"/>
+        <circle cx="72" cy="62" r="5" fill="var(--green)"/><circle cx="100" cy="62" r="5" fill="var(--green)" opacity=".55"/><circle cx="128" cy="62" r="5" fill="var(--green)" opacity=".25"/>
+        <rect x="52" y="84" width="96" height="8" rx="4" fill="var(--green)" opacity=".5"/>
+        <rect x="52" y="102" width="64" height="8" rx="4" fill="var(--green)" opacity=".3"/>
+        <path d="M150 150 l6 14 14 6 -14 6 -6 14 -6 -14 -14 -6 14 -6 Z" fill="var(--amber)"/>
+      </svg>
+    </div>
+    <p class="muted">Usá las flechas ← → del teclado, los botones, o deslizá en la pantalla.</p>
+  </div>
+</section>
+
+<!-- 02 PRESENTACIÓN -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">02 <b>· Presentación</b></p>
+    <h2>NodIA convierte los pedidos de WhatsApp en pedidos estructurados, completos y listos para preparar.</h2>
+    <p class="lead">Una capa de inteligencia artificial para pequeñas distribuidoras y mayoristas: interpreta mensajes y notas de voz, detecta lo que falta y deja la confirmación final en manos humanas. El comprador no cambia su forma de pedir; el comercio deja de trabajar de más.</p>
+    <svg viewBox="0 0 640 112" style="max-width:640px;" aria-hidden="true">
+      <rect x="10" y="8" width="180" height="96" rx="14" fill="var(--surface2)" stroke="var(--line)"/>
+      <path d="M78 30a22 22 0 0 1 44 0c0 12-9 19-21 21l-11 7 2-10a22 22 0 0 1-14-18Z" fill="none" stroke="var(--ink2)" stroke-width="2"/>
+      <text x="100" y="88" text-anchor="middle" font-size="13" fill="var(--ink2)">Pedido por WhatsApp</text>
+      <path d="M196 56h28 m-8 -8 l8 8 -8 8" stroke="var(--green)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <rect x="230" y="8" width="180" height="96" rx="14" fill="var(--green-dim)" stroke="var(--green-line)"/>
+      <path d="M320 22l6 16 16 6-16 6-6 16-6-16-16-6 16-6Z" fill="var(--green)"/>
+      <text x="320" y="88" text-anchor="middle" font-size="13" fill="var(--green)">IA interpreta</text>
+      <path d="M416 56h28 m-8 -8 l8 8 -8 8" stroke="var(--green)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <rect x="450" y="8" width="180" height="96" rx="14" fill="var(--surface2)" stroke="var(--line)"/>
+      <rect x="528" y="20" width="24" height="30" rx="4" fill="none" stroke="var(--ink2)" stroke-width="2"/>
+      <path d="M534 29h12M534 36h12M534 43h7" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round"/>
+      <text x="540" y="88" text-anchor="middle" font-size="13" fill="var(--ink2)">Pedido estructurado</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 03 PROBLEMA -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">03 <b>· Problema</b></p>
+    <h2>El pedido llega claro para el que lo dicta.<br>Para el que lo recibe, no.</h2>
+    <div class="cols">
+      <div class="chat">
+        <div class="bubble">
+          <span class="vnote">🎤 Nota de voz <span class="wave">▮▮▯▯</span> 0:23</span><br>
+          “Necesito 10 bolsas de la grande, 6 de las retornables y 2 detergentes… la marca de siempre. Para el jueves 🙏”
+        </div>
+        <p class="muted" style="align-self:flex-end;">↑ Esto es un pedido. Hoy, alguien lo interpreta, lo busca en el catálogo, lo anota y lo confirma a mano.</p>
+      </div>
+      <div class="stack" style="gap:10px;">
+        <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M17 3a2.8 2.8 0 1 0 4 4L7 21l-4 1 1-4Z"/></svg><span class="num">50%</span></div><div class="lbl">registra pedidos con intervención manual</div><div class="src">encuesta propia · n=22 B2B</div></div>
+        <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg><span class="num">45%</span></div><div class="lbl">recontacta al cliente por datos faltantes, semanal o a diario</div><div class="src">encuesta propia · n=22 B2B</div></div>
+        <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span class="num">27%</span></div><div class="lbl">dedica más de 1 hora diaria solo a buscar información</div><div class="src">encuesta propia · n=22 B2B</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 SOLUCIÓN -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">04 <b>· Solución</b></p>
+    <h2>La IA interpreta. El faltante se detecta solo. La confirmación sigue siendo humana.</h2>
+    <div class="cols">
+      <div class="bubble out" style="max-width:none;">
+        <div class="order" style="border-color:var(--green-line);">
+          <div class="otop"><span>PEDIDO #1247 · Kiosco San Juan</span><span>entrega: jueves</span></div>
+          <table>
+            <tr><td>Bolsa consorcio grande</td><td>× 10</td></tr>
+            <tr><td>Bolsa retornable</td><td>× 6</td></tr>
+            <tr><td>Detergente</td><td>× 2</td></tr>
+          </table>
+          <p class="warn">⚠ 1 dato faltante: marca del detergente</p>
+          <div class="ofoot"><span class="muted">Interpretado en 4 segundos</span><span class="btn">Confirmar pedido</span></div>
+        </div>
+      </div>
+      <div class="stack" style="gap:10px;">
+        <div class="card"><span class="tag">Paso 1</span><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" style="vertical-align:-3px; margin-right:6px;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>Escucha el canal real</h3><p>Texto y notas de voz por WhatsApp Business API, sobre el catálogo y el vocabulario de cada distribuidora.</p></div>
+        <div class="card"><span class="tag">Paso 2</span><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" style="vertical-align:-3px; margin-right:6px;"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>Estructura con IA</h3><p>Productos, cantidades y fechas contra el catálogo; ambigüedades y faltantes marcados, no adivinados.</p></div>
+        <div class="card"><span class="tag">Paso 3</span><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" style="vertical-align:-3px; margin-right:6px;"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Humano confirma</h3><p>Un clic para confirmar o corregir. Cada corrección entrena el activo de datos del rubro.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 MERCADO -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">05 <b>· Mercado y oportunidad</b></p>
+    <h2>Un nicho con dolor agudo, medido desde abajo.</h2>
+    <div class="tiles">
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="var(--green)"/></svg><span class="num">186.600</span></div><div class="lbl">TAM — PyMEs de comercio en Argentina</div><div class="src">Informe PyMEs 2023 · Secretaría/UCEMA</div></div>
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4" fill="var(--green-dim)"/><path d="M12 8v8M8 12h8"/></svg><span class="num">~24.000</span></div><div class="lbl">SAM — mayoristas WhatsApp-first con registro manual</div><div class="src">estimación propia · a validar</div></div>
+      <div class="tile hot"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M5 19c2-8 6-12 14-14-1 8-5 12-14 14Z"/><path d="M5 19l4-4"/></svg><span class="num">1.000</span></div><div class="lbl">SOM año 5 — 0,54% del TAM</div><div class="src">rampa comercial del modelo</div></div>
+    </div>
+    <h3>¿Por qué ahora?</h3>
+    <div class="tiles">
+      <div class="card"><span class="tag">Digitalización</span><p><b class="accent">88%</b> de las PyMEs argentinas invirtió en digitalización en 2024 <span class="muted">(Telefónica)</span>.</p></div>
+      <div class="card"><span class="tag">Canal conversacional</span><p>Canal digital PyME <b class="accent">+19,4%</b> interanual; WhatsApp es el canal B2B del rubro <span class="muted">(CAME)</span>.</p></div>
+      <div class="card"><span class="tag">IA disponible</span><p><b class="accent">62%</b> de las empresas que venden digital ya usa IA; los LLM hacen viable interpretar pedidos a costo SaaS <span class="muted">(CACE 2025)</span>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 COMPETENCIA -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">06 <b>· Competencia</b></p>
+    <h2>Ocupamos el cuadrante vacío: el eslabón que hoy es manual.</h2>
+    <div class="cols">
+      <div class="quad">
+        <div class="axis-x muted">← Canal conversacional · · · Canal estructurado →</div>
+        <div class="card win"><span class="tag">Conversacional · Puntual</span><h3 class="accent">NodIA</h3><p>Interpreta el pedido y lo estructura. Capa de entrada, no reemplaza a nadie.</p></div>
+        <div class="card"><span class="tag">Estructurado · Integral</span><h3>ERPs PyME</h3><p>Tango, Xubio, Colppy. Facturan y gestionan; la conversación previa sigue manual.</p></div>
+        <div class="card"><span class="tag">Conversacional · Integral</span><h3>Kommo / CRMs</h3><p>Organizan conversaciones; no entienden productos, cantidades ni faltantes.</p></div>
+        <div class="card"><span class="tag">Estructurado · Puntual</span><h3>Portal B2B</h3><p>Pedido estructurado, pero exige cambiar de canal. Fricción alta.</p></div>
+      </div>
+      <div class="stack" style="gap:10px;">
+        <div class="card"><span class="tag">Status quo</span><h3>WhatsApp + planilla</h3><p>Gratis y conocido, pero escala lineal con el volumen: errores, demoras y retrabajo.</p></div>
+        <div class="card win"><span class="tag">Ventaja sostenible</span><h3>El activo de datos</h3><p>Catálogo, pedidos y vocabulario del rubro mejoran la precisión con cada pedido procesado. Es propio, no del proveedor de IA.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 MODELO -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">07 <b>· Modelo de negocio</b></p>
+    <h2>SaaS simple: una suscripción por distribuidora.</h2>
+    <div class="tiles">
+      <div class="tile hot"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg><span class="num">USD 150</span></div><div class="lbl">por mes, por empresa · +5% anual</div><div class="src">benchmark: Xubio · Colppy</div></div>
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg><span class="num">77%</span></div><div class="lbl">margen bruto · COGS USD 34/cliente/mes</div><div class="src">WhatsApp + IA + cloud</div></div>
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M18.5 9.5a4.5 4.5 0 0 0-7 3.8 4.5 4.5 0 0 0-7-3.8C2.5 11.5 4 15 12 21c8-6 9.5-9.5 6.5-11.5Z" transform="scale(.9) translate(1.3 1.3)"/></svg><span class="num">USD 4.640</span></div><div class="lbl">LTV estimado · vida media 40 meses</div><div class="src">churn supuesto 2,5%/mes</div></div>
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="num">7,7×</span></div><div class="lbl">LTV / CAC objetivo · payback &lt; 6 meses</div><div class="src">benchmark B2B SaaS: $239–1.450</div></div>
+    </div>
+    <p class="lead">El precio se ancla en el mercado local: las PyMEs argentinas ya pagan entre ARS 83.000 y 310.000 + IVA por mes por sistemas de gestión (Xubio, Colppy) — USD 150 cae dentro de ese rango, y NodIA además automatiza el eslabón que esos sistemas no cubren. Tiers futuros por volumen y módulos premium no están en el caso base.</p>
+  </div>
+</section>
+
+<!-- 08 EQUIPO -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">08 <b>· Equipo</b></p>
+    <h2>Seis personas, seis frentes, un mismo rubro.</h2>
+    <div class="team">
+      <div class="member"><div class="avatar">RA</div><div><div class="role">Rodolfo Aguirre</div><div class="resp">Negocio / Research: entrevistas, validación de problema y mercado.</div></div></div>
+      <div class="member"><div class="avatar">DB</div><div><div class="role">Diego Benítez</div><div class="resp">Producto / UX: journey del pedido, MVP, revisión humana.</div></div></div>
+      <div class="member"><div class="avatar">SG</div><div><div class="role">Sebastián Gines</div><div class="resp">Tecnología / IA: arquitectura, integración IA–WhatsApp.</div></div></div>
+      <div class="member"><div class="avatar">LM</div><div><div class="role">Leonardo Moyano</div><div class="resp">Comercial: prospección, pilotos, validación de precio.</div></div></div>
+      <div class="member"><div class="avatar">GS</div><div><div class="role">Germán Scarafilo</div><div class="resp">Operaciones / CS: onboarding, soporte, métricas de ahorro.</div></div></div>
+      <div class="member"><div class="avatar">MV</div><div><div class="role">Matías Velasquez</div><div class="resp">Finanzas / Estrategia: P×Q, FCF, VAN, escenarios.</div></div></div>
+    </div>
+    <p class="muted">Propósito: que la tecnología se adapte a las personas, no al revés. Misión: convertir conversaciones de WhatsApp en pedidos claros, con control humano. Visión: ser la capa de gestión conversacional B2B de referencia en Latinoamérica.</p>
+  </div>
+</section>
+
+<!-- 09 TRACCIÓN -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">09 <b>· Tracción y validación</b></p>
+    <h2>La señal ya existe. La evidencia dura, en camino.</h2>
+    <div class="tiles">
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.7c2.8.3 4.8 2 5.5 4.8"/></svg><span class="num">37</span></div><div class="lbl">respuestas de la encuesta propia</div><div class="src">22 en el target B2B</div></div>
+      <div class="tile hot"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M12 20s-7-4.5-9-9c-1.2-2.8.6-6 3.7-6 2 0 3.5 1.2 4.3 2.6h2C13.8 6.2 15.3 5 17.3 5c3.1 0 4.9 3.2 3.7 6-2 4.5-9 9-9 9Z"/></svg><span class="num">68%</span></div><div class="lbl">la solución es muy o extremadamente útil</div><div class="src">15/22 en target</div></div>
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-5"/><circle cx="12" cy="12" r="9"/></svg><span class="num">55%</span></div><div class="lbl">probable o muy probable que la pruebe</div><div class="src">12/22 en target</div></div>
+      <div class="tile"><div style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg><span class="num">59%</span></div><div class="lbl">del target ya recibe pedidos por WhatsApp</div><div class="src">13/22 en target</div></div>
+    </div>
+    <div class="cols">
+      <div class="card"><span class="tag">En curso · 6 semanas</span><h3>Entrevistas + PoC</h3><p>10–15 entrevistas en profundidad y PoC con 100–500 pedidos reales para medir precisión y costo técnico.</p></div>
+      <div class="card"><span class="tag">Después</span><h3>Piloto comercial</h3><p>3 distribuidoras con pedidos reales. Meta: ≥80% de pedidos sin corrección manual y ≥5 horas ahorradas por semana.</p></div>
+    </div>
+    <p class="muted">Criterio definido de antemano: si el dolor no es “top 3” en ≥40% de los entrevistados o la precisión no supera 60%, pivotamos antes de invertir en desarrollo completo.</p>
+  </div>
+</section>
+
+<!-- 10 INVERSIÓN -->
+<section class="slide">
+  <div class="stack" style="gap:clamp(10px,1.8vh,18px);">
+    <p class="eyebrow">10 <b>· Oportunidad de inversión</b></p>
+    <h2 style="font-size:clamp(22px,3.2vw,34px);">USD 60.000 para construir, validar y llegar al piloto con caja.</h2>
+    <div class="cols" style="align-items:start;">
+      <div class="stack" style="gap:12px;">
+        <div class="chart-wrap">
+          <h3 style="margin-bottom:10px;">Uso de los fondos</h3>
+          <div class="bars">
+            <div class="brow"><span class="blbl">Producto e IA</span><div class="btrack"><div class="bfill" style="width:78%; background:var(--green);"><span class="bval">45% · $27.000</span></div></div></div>
+            <div class="brow"><span class="blbl">Comercial y pilotos</span><div class="btrack"><div class="bfill" style="width:52%; background:#1E8A4C;"><span class="bval">30% · $18.000</span></div></div></div>
+            <div class="brow"><span class="blbl">Operaciones y cloud</span><div class="btrack"><div class="bfill" style="width:26%; background:#17603A;"><span class="bval">15% · $9.000</span></div></div></div>
+            <div class="brow"><span class="blbl">Legal y administración</span><div class="btrack"><div class="bfill" style="width:17%; background:#14352A; border:1px solid var(--green-line);"><span class="bval">10% · $6.000</span></div></div></div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="padding-bottom:26px;">
+          <h3 style="margin-bottom:10px;">VAN @ 30% vs. umbral deseable</h3>
+          <div class="bars" style="gap:22px; margin-bottom:30px;">
+            <div class="brow"><span class="blbl">Sin valor terminal</span><div class="btrack"><div class="bfill" style="width:11.5%; background:#17603A;"><span class="bval">$93.314</span></div></div></div>
+            <div class="brow"><span class="blbl">Con perpetuidad (g=2%)</span><div class="btrack"><div class="bfill" style="width:80%; background:var(--green);"><span class="bval" style="color:var(--green); font-weight:500;">$644.890</span></div><div class="threshold" style="left:74.5%;"><span class="thr-lbl">umbral $600.000</span></div></div></div>
+          </div>
+          <p class="muted" style="margin-top:12px;">TIR a 5 años: 48,3% · break-even operativo: Año 3.<br>La ronda: USD 60.000 sobre pre-money <b class="accent">USD 644.890</b> → el inversor recibe <b class="accent">~8,5%</b>; los fundadores retienen ~91,5%.</p>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <h3 style="margin-bottom:4px;">Proyección de ingresos · Años 1–5</h3>
+        <p class="muted" style="margin-bottom:8px;">miles de USD · clientes 40 → 1.000 · ARPU USD 150/mes (+5% anual)</p>
+        <svg viewBox="0 0 600 240" role="img" aria-label="Ingresos proyectados por año">
+          <line x1="40" y1="200" x2="560" y2="200" stroke="var(--line)"/>
+          <line x1="40" y1="152" x2="560" y2="152" stroke="var(--line)" stroke-width=".5" stroke-dasharray="3 4"/>
+          <line x1="40" y1="104" x2="560" y2="104" stroke="var(--line)" stroke-width=".5" stroke-dasharray="3 4"/>
+          <line x1="40" y1="56" x2="560" y2="56" stroke="var(--line)" stroke-width=".5" stroke-dasharray="3 4"/>
+          <text x="34" y="204" text-anchor="end" font-size="10" fill="var(--mut)">0</text>
+          <text x="34" y="156" text-anchor="end" font-size="10" fill="var(--mut)">550</text>
+          <text x="34" y="108" text-anchor="end" font-size="10" fill="var(--mut)">1.100</text>
+          <text x="34" y="60" text-anchor="end" font-size="10" fill="var(--mut)">1.650</text>
+          <rect class="bar" x="40" y="194.1" width="64" height="5.9" rx="3"><title>Año 1: USD 72,0 mil</title></rect>
+          <rect class="bar" x="154" y="181.3" width="64" height="18.7" rx="3"><title>Año 2: USD 226,8 mil</title></rect>
+          <rect class="bar" x="268" y="151.0" width="64" height="49.0" rx="3"><title>Año 3: USD 595,4 mil</title></rect>
+          <rect class="bar" x="382" y="97.1" width="64" height="102.9" rx="3"><title>Año 4: USD 1.250,2 mil</title></rect>
+          <rect class="bar" x="496" y="20" width="64" height="180" rx="3"><title>Año 5: USD 2.187,9 mil</title></rect>
+          <text x="72" y="188" text-anchor="middle" font-size="11" fill="var(--ink)">72</text>
+          <text x="186" y="175" text-anchor="middle" font-size="11" fill="var(--ink)">227</text>
+          <text x="300" y="145" text-anchor="middle" font-size="11" fill="var(--ink)">595</text>
+          <text x="414" y="91" text-anchor="middle" font-size="11" fill="var(--ink)">1.250</text>
+          <text x="528" y="14" text-anchor="middle" font-size="11" fill="var(--ink)">2.188</text>
+          <text x="72" y="218" text-anchor="middle" font-size="11" fill="var(--mut)">Año 1</text>
+          <text x="186" y="218" text-anchor="middle" font-size="11" fill="var(--mut)">Año 2</text>
+          <text x="300" y="218" text-anchor="middle" font-size="11" fill="var(--mut)">Año 3</text>
+          <text x="414" y="218" text-anchor="middle" font-size="11" fill="var(--mut)">Año 4</text>
+          <text x="528" y="218" text-anchor="middle" font-size="11" fill="var(--mut)">Año 5</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 RIESGOS -->
+<section class="slide">
+  <div class="stack" style="gap:clamp(10px,1.8vh,18px);">
+    <p class="eyebrow">11 <b>· Riesgos y respuestas</b></p>
+    <h2 style="font-size:clamp(22px,3.2vw,34px);">Las preguntas que hace un inversor, respondidas.</h2>
+    <div class="risks">
+      <div class="card risk"><span class="q">Market timing</span><p>El 88% de las PyMEs invierte en digitalización y la IA ya está en su agenda. WhatsApp es hoy el canal del rubro.</p></div>
+      <div class="card risk"><span class="q">Modelo de negocio</span><p>USD 150/mes, margen 77%, LTV/CAC objetivo 7,7×. Precio anclado al mercado local; churn y uso se miden desde el piloto.</p></div>
+      <div class="card risk"><span class="q">Adopción</span><p>Los competidores fuertes son horizontales y no interpretan pedidos. Barrera: el activo de datos del rubro.</p></div>
+      <div class="card risk"><span class="q">Tamaño de mercado</span><p>1.000 clientes = 0,54% del TAM. El retorno no exige dominar el mercado; LatAm es la expansión posterior.</p></div>
+      <div class="card risk"><span class="q">Ejecución</span><p>Equipo de 6 con roles cerrados y conocimiento directo del rubro distribuidor.</p></div>
+      <div class="card risk"><span class="q">Tecnología</span><p>Sin ciencia nueva: LLMs comerciales + matching contra catálogo. PoC de 100–500 pedidos antes de invertir.</p></div>
+      <div class="card risk"><span class="q">Estructura de capital</span><p>Ronda chica: dilución ~8,5%, fundadores ~91,5%, espacio para rondas futuras.</p></div>
+      <div class="card risk"><span class="q">Plataforma (Meta)</span><p>El riesgo principal. Mitigación: API oficial, arquitectura multi-canal y activo de datos propio.</p></div>
+      <div class="card risk"><span class="q">Gestión</span><p>Criterios de pivot/perseverar definidos antes de invertir, validación por etapas.</p></div>
+      <div class="card risk"><span class="q">Financiero</span><p>USD 60.000 cubren MVP + 12 meses. VAN positivo sin valor terminal; TIR 48,3%.</p></div>
+      <div class="card risk"><span class="q">Legal</span><p>APIs licenciadas, políticas de Meta, tratamiento cuidado de datos de conversaciones.</p></div>
+      <div class="card risk" style="border-left-color:var(--amber);"><span class="q" style="color:var(--amber);">El que no podemos controlar</span><p>Que la adopción del canal tradicional sea más lenta que la proyectada: por eso la ronda es de 60k y no de 1,3M — el plan está diseñado para descubrirlo barato.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 CIERRE -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">12 <b>· Cierre</b></p>
+    <h1 style="font-size:clamp(30px,5.4vw,60px);">El pedido ya llega por WhatsApp.<br><span class="accent">Nosotros lo hacemos llegar al sistema.</span></h1>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <span class="badge">NodIA · Ronda semilla USD 60.000 · Equipo 20</span>
+    </div>
+    <svg viewBox="0 0 320 70" style="max-width:340px;" aria-hidden="true">
+      <rect x="6" y="12" width="110" height="44" rx="14" fill="var(--green-dim)" stroke="var(--green-line)"/>
+      <path d="M40 56l-4 12 14-10" fill="var(--green-dim)" stroke="var(--green-line)"/>
+      <circle cx="38" cy="34" r="3.5" fill="var(--green)"/><circle cx="56" cy="34" r="3.5" fill="var(--green)" opacity=".6"/><circle cx="74" cy="34" r="3.5" fill="var(--green)" opacity=".3"/>
+      <path d="M132 34h44 m-9 -8 l9 8 -9 8" stroke="var(--green)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <rect x="192" y="8" width="118" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+      <path d="M204 24h60M204 34h74M204 44h48" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>
+    </svg>
+    <p class="muted">Contacto: nodia.equipo20@gmail.com · Modelo financiero completo: “Hito 2 - Modelo Financiero NodIA (FINAL).xlsx”</p>
+  </div>
+</section>
+
+<!-- 13 APÉNDICE -->
+<section class="slide">
+  <div class="stack">
+    <p class="eyebrow">Apéndice <b>· Fuentes</b></p>
+    <h2>Fuentes chequeables</h2>
+    <div class="cols" style="align-items:start;">
+      <div class="stack" style="gap:10px;">
+        <div class="card"><span class="tag">Mercado</span><p><a href="https://www.argentina.gob.ar/sites/default/files/informe_2023_nov_2024.pdf">Informe PyMEs 2007–2023 (Secretaría)</a> · <a href="https://ucema.edu.ar/sites/default/files/2025-09/IndicadoresUCEMA_PyMEs092025.pdf">UCEMA sep-2025</a> · <a href="https://cace.org.ar/blogs/news/estudio-anual-de-cace-2025-el-ecommerce-como-canal-estructural-del-consumo-argentino">CACE 2025</a></p></div>
+        <div class="card"><span class="tag">Digitalización</span><p><a href="https://www.telefonica.com.ar/88-por-ciento-pymes-argentinas-invertira-en-digitalizacion-2024/">Telefónica: 88% invierte en digitalización</a> · <a href="https://www.redcame.org.ar/">CAME: canal digital +19,4%</a></p></div>
+        <div class="card"><span class="tag">Competencia y costos</span><p><a href="https://www.kommo.com/es/precios/comparar-planes/">Kommo</a> · <a href="https://wynges.com/blog/top-10-software-zeus-flexus-softland-xubio-tango-bejerman-contagram-colppy-nubox/">Xubio y ERPs con precios</a> · <a href="https://colppy.com/planes-y-precios-pymes">Colppy</a> · <a href="https://ai.google.dev/gemini-api/docs/pricing?hl=es">Gemini pricing</a></p></div>
+        <div class="card"><span class="tag">Supuestos financieros</span><p><a href="https://retentioncheck.com/churn-benchmarks/smb-saas">Churn SMB SaaS (3–7% mensual)</a> · <a href="https://aws-pricing.com/t3.small.html">AWS t3.small</a> · <a href="https://www.digitalocean.com/pricing/droplets">DigitalOcean</a> · <a href="https://www.argentina.gob.ar/sites/default/files/impuesto_a_las_ganancias_desde_el_ano_2000_al_2025_0.pdf">Ley 27.630 (escala societaria)</a> · <a href="https://firstpagesage.com/reports/average-customer-acquisition-cost-cac-by-industry-b2b-edition-fc/">CAC B2B SaaS por industria</a></p></div>
+      </div>
+      <div class="stack" style="gap:10px;">
+        <div class="card"><span class="tag">Metodología</span><p>Nota Técnica de Construcción del Flujo de Fondos y plantilla DCF de la cátedra (material de clase).</p></div>
+        <div class="card"><span class="tag">Evidencia propia</span><p>Encuesta “Gestión de pedidos en distribuidoras y mayoristas”: 37 respuestas (22 en target B2B) · Mapa de empatía y propuesta de valor del Hito 1.</p></div>
+        <div class="card"><span class="tag">Hipótesis declaradas</span><p>Rampa de clientes, CAC, pedidos por cliente y sueldos: hipótesis explícitas del equipo, a reemplazar por datos del piloto.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var dots=document.getElementById('dots');
+  var cur=0;
+  slides.forEach(function(_,i){
+    var b=document.createElement('button');
+    b.setAttribute('aria-label','Slide '+(i+1));
+    b.addEventListener('click',function(){ go(i); });
+    dots.appendChild(b);
+  });
+  var btns=[].slice.call(dots.children);
+  function pad(n){ return (n<10?'0':'')+n; }
+  function go(i){
+    if(i<0||i>=slides.length||i===cur&&slides[cur].classList.contains('active')) { if(i===cur) return; }
+    i=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,j){
+      s.classList.toggle('active',j===i);
+      s.classList.toggle('prev',j<i);
+    });
+    btns.forEach(function(b,j){ b.classList.toggle('on',j===i); });
+    document.getElementById('counter').textContent=pad(i+1)+' / '+pad(slides.length);
+    document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';
+    cur=i;
+    try{ history.replaceState(null,'','#s'+(i+1)); }catch(e){}
+  }
+  document.getElementById('next').addEventListener('click',function(){ go(cur+1); });
+  document.getElementById('prev').addEventListener('click',function(){ go(cur-1); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); go(cur+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(cur-1); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(slides.length-1); }
+  });
+  var tx=null;
+  document.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(tx===null) return;
+    var dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>48){ dx<0?go(cur+1):go(cur-1); }
+    tx=null;
+  },{passive:true});
+  var m=/#s(\d+)/.exec(location.hash);
+  go(m?Math.min(slides.length-1,parseInt(m[1],10)-1):0);
+})();
+</script>
